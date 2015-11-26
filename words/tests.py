@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import activate
 from django.test import TestCase
 
-from .models import Word, WordTranslation
+from .models import Word, WordTranslation, Draw
 
 class WordTest(TestCase):
     def setUp(self):
@@ -54,3 +54,20 @@ class WordTest(TestCase):
 
     def test_translation_str(self):
         self.assertEquals('color', self.translation1.__str__())
+
+class DrawTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='test', password='test')
+        self.word = Word.objects.create()
+
+    def test_current_word(self):
+        self.assertIsNone(self.user.current_word())
+
+        draw = Draw.objects.create(user=self.user,
+                                   word=self.word,
+                                   accepted=None)
+        self.assertEquals(self.word, self.user.current_word())
+
+        draw.accepted = True
+        draw.save()
+        self.assertEquals(self.word, self.user.current_word())

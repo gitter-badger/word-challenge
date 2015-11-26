@@ -47,3 +47,16 @@ class WordTranslation(models.Model):
             ('word', 'language'),
             ('language', 'translation'),
         )
+
+class Draw(models.Model):
+    user = models.ForeignKey(User)
+    word = models.ForeignKey(Word)
+    accepted = models.NullBooleanField()
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ('timestamp',)
+
+class Work(models.Model):
+    draw = models.OneToOneField(Draw, related_name='work', primary_key=True)
+    language = models.CharField(max_length=5, db_index=True)
