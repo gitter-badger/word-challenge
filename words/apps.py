@@ -1,6 +1,8 @@
 from django.apps import AppConfig
+from django.conf import settings
 from django.contrib.auth.models import User
-
+from django.utils import timezone
+from django.utils.dateparse import parse_duration
 
 def _current_word(self):
     from .models import Draw
@@ -34,6 +36,12 @@ def _draw_word(self):
         return self.current_word()
 
     from .models import Word, Draw
+
+    last_draw = self.last_draw()
+    duration = parse_duration(settings.DRAW_TIME)
+
+    if last_draw.timestamp + duration > timezone.now():
+        return last_draw.word
 
     # Find all words
     # Exclude all words that has an accepted draw for this user
