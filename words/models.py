@@ -2,8 +2,10 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import get_language
 
+@python_2_unicode_compatible
 class Word(models.Model):
     def translation(self, language):
         try:
@@ -25,6 +27,7 @@ class Word(models.Model):
 
         return ""
 
+@python_2_unicode_compatible
 class WordTranslation(models.Model):
     word = models.ForeignKey(Word, related_name='translations')
     language = models.CharField(max_length=5, db_index=True)
