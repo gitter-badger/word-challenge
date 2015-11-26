@@ -24,6 +24,11 @@ def _current_word(self):
 
     return None
 
+def _last_draw(self):
+    from .models import Draw
+
+    return Draw.objects.filter(user=self).order_by('-timestamp').first()
+
 def _draw_word(self):
     if self.current_word() is not None:
         return self.current_word()
@@ -52,3 +57,4 @@ class WordsConfig(AppConfig):
     def ready(self):
         User.current_word = _current_word
         User.draw_word = _draw_word
+        User.last_draw = _last_draw

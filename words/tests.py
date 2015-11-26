@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import activate
 from django.test import TestCase
 
@@ -93,3 +95,18 @@ class DrawTest(TestCase):
         Work.objects.create(draw=draw)
 
         self.assertIsNone(self.user.draw_word())
+
+    def test_last_draw(self):
+        draw = Draw.objects.create(
+            user=self.user,
+            word=self.word,
+            accepted=True,
+            timestamp=timezone.now() - timedelta(days=1))
+        Work.objects.create(draw=draw)
+        word = Word.objects.create()
+        draw = Draw.objects.create(user=self.user,
+                            word=word,
+                            accepted=True)
+        Work.objects.create(draw=draw)
+
+        self.assertEquals(word, self.user.last_draw().word)
