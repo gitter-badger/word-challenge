@@ -50,7 +50,7 @@ class WordTranslation(models.Model):
 
 class Draw(models.Model):
     user = models.ForeignKey(User)
-    word = models.ForeignKey(Word)
+    word = models.ForeignKey(Word, related_name='draws')
     accepted = models.NullBooleanField()
     timestamp = models.DateTimeField(default=timezone.now)
 
