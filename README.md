@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/gergelypolonkai/word-challenge.svg?branch=master)](https://travis-ci.org/gergelypolonkai/word-challenge)
+[![codecov.io](https://codecov.io/github/gergelypolonkai/word-challenge/coverage.svg?branch=master)](https://codecov.io/github/gergelypolonkai/word-challenge?branch=master)
+
 100(ish) words challenge
 ========================
 
