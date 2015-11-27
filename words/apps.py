@@ -40,20 +40,38 @@ def _draw_word(self):
     last_draw = self.last_draw()
     duration = parse_duration(settings.DRAW_TIME)
 
-    if last_draw.timestamp + duration > timezone.now():
+    if last_draw is not None \
+       and (last_draw.accepted is None
+            or last_draw.accepted == True) \
+       and last_draw.timestamp + duration > timezone.now():
         return last_draw.word
 
     # Find all words
     # Exclude all words that has an accepted draw for this user
     # Choose a random one
     # If there are no more words, return None
-    word = Word.objects \
-               .exclude(draws__accepted=True, draws__user=self) \
-               .order_by('?') \
-               .first()
+    if last_draw is not None:
+        last_word = last_draw.word
+    else:
+        last_word = None
 
-    if word is None:
+    all_words = Word.objects.exclude(draws__accepted=True, draws__user=self)
+    all_count = all_words.count()
+
+    # If there are no more words, return None
+    if all_count == 0:
         return None
+
+    # If there is only one word, return it, regardless if it’s the
+    # same as the last one
+    if all_count == 1:
+        word = all_words.first()
+    # Otherwise, choose a word different from the last one
+    else:
+        word = last_word
+
+        while last_word == word:
+            word = all_words.order_by('?').first()
 
     Draw.objects.create(user=self, word=word, accepted=None)
 

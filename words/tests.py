@@ -79,13 +79,14 @@ class DrawTest(TestCase):
     @override_settings(DRAW_TIME='1 00:00:00')
     def test_draw_word(self):
         # User has no words yet
-        draw = Draw.objects.create(user=self.user,
-                            word=self.word,
-                            accepted=None)
+        self.assertEquals(self.word, self.user.draw_word())
+
+        # User now has an unaccepted draw
         self.assertEquals(self.word, self.user.draw_word())
 
         # Accept the last word and make it appear as if it would be 2
         # days ago
+        draw = Draw.objects.get(user=self.user, word=self.word)
         draw.accepted = True
         draw.timestamp -= timedelta(days=2)
         draw.save()
@@ -106,10 +107,42 @@ class DrawTest(TestCase):
         draw.accepted = True
         draw.timestamp -= timedelta(days=2)
         draw.save()
-        Work.objects.create(draw=draw)
+        work = Work.objects.create(draw=draw)
 
         # As we are out of words now, a new draw should return None
         self.assertIsNone(self.user.draw_word())
+
+        # Now set the last draw to fresh again, and remove the associated work.
+        draw.timestamp = timezone.now()
+        draw.save()
+        work.delete()
+        # Also create a new word
+        word3 = Word.objects.create()
+
+        # A next draw should return the same word in this case
+        self.assertEquals(word2, self.user.draw_word())
+
+        # Now let’s reject this draw and draw a new one
+        draw = Draw.objects.get(user=self.user, word=word2)
+        draw.accepted = False
+        draw.save()
+
+        # The next draw should be different from the last
+        self.assertEquals(word3, self.user.draw_word())
+
+        # Now make the previous one accepted and completed, and reject
+        # this last one
+        draw.accepted = True
+        draw.save()
+        Work.objects.create(draw=draw)
+
+        draw = Draw.objects.get(user=self.user, word=word3)
+        draw.accepted = False
+        draw.save()
+
+        # The next draw must be this last, rejected one (as there are
+        # no other options)
+        self.assertEquals(word3, self.user.draw_word())
 
     def test_last_draw(self):
         draw = Draw.objects.create(
