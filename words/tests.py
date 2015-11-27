@@ -78,27 +78,37 @@ class DrawTest(TestCase):
 
     @override_settings(DRAW_TIME='1 00:00:00')
     def test_draw_word(self):
+        # User has no words yet
         draw = Draw.objects.create(user=self.user,
                             word=self.word,
                             accepted=None)
         self.assertEquals(self.word, self.user.draw_word())
+
+        # Accept the last word and make it appear as if it would be 2
+        # days ago
         draw.accepted = True
         draw.timestamp -= timedelta(days=2)
         draw.save()
         Work.objects.create(draw=draw)
 
+        # Create a second word for further testing
         word2 = Word.objects.create()
+
+        # The next word should be different from the previous one
         self.assertEquals(word2, self.user.draw_word())
 
+        # The new word should not be accepted (as it is a new draw)
         draw = Draw.objects.get(user=self.user, word=word2)
         self.assertIsNotNone(draw)
         self.assertIsNone(draw.accepted)
 
+        # Accept the word, make it old again, and create a work for it
         draw.accepted = True
         draw.timestamp -= timedelta(days=2)
         draw.save()
         Work.objects.create(draw=draw)
 
+        # As we are out of words now, a new draw should return None
         self.assertIsNone(self.user.draw_word())
 
     def test_last_draw(self):
