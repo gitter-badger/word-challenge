@@ -167,3 +167,31 @@ class DrawTest(TestCase):
         Word.objects.create()
 
         self.assertEquals(self.word, self.user.draw_word())
+
+    @override_settings(DRAW_TIME='1 00:00:00')
+    def test_draw_successful(self):
+        # If there is no work, but we are within the time range
+        draw = Draw.objects.create(
+            user=self.user,
+            word=Word.objects.create(),
+            accepted=True,
+            timestamp=timezone.now())
+        self.assertIsNone(draw.successful())
+
+        # If there is no work and we are out of time
+        draw.timestamp -= timedelta(days=2)
+        draw.save()
+        self.assertIsNotNone(draw.successful())
+        self.assertFalse(draw.successful())
+
+        # If there is work and it was submitted on time
+        draw.timestamp = timezone.now() + timedelta(minutes=1)
+        draw.save()
+        Work.objects.create(draw=draw)
+        self.assertTrue(draw.successful())
+
+        # If there is work and it wasn’t submitted on time
+        draw.timestamp = timezone.now() - timedelta(days=2)
+        draw.save()
+        self.assertIsNotNone(draw.successful())
+        self.assertFalse(draw.successful())
