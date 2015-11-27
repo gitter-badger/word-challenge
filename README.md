@@ -4,6 +4,8 @@
 100(ish) words challenge
 ========================
 
+[![Join the chat at https://gitter.im/gergelypolonkai/word-challenge](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gergelypolonkai/word-challenge?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is the main project for 100(ish)word challenge, a challenge for
 artists of different kinds.
 
