@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from django.utils.translation import activate
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .models import Word, WordTranslation, Draw, Work
 
@@ -83,7 +83,7 @@ class DrawTest(TestCase):
                             accepted=None)
         self.assertEquals(self.word, self.user.draw_word())
         draw.accepted = True
-        draw.timestamp -= datetime.timespan(days=2)
+        draw.timestamp -= timedelta(days=2)
         draw.save()
         Work.objects.create(draw=draw)
 
@@ -95,7 +95,7 @@ class DrawTest(TestCase):
         self.assertIsNone(draw.accepted)
 
         draw.accepted = True
-        draw.timestamp -= 2 * duration
+        draw.timestamp -= timedelta(days=2)
         draw.save()
         Work.objects.create(draw=draw)
 
