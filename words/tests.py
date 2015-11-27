@@ -1,6 +1,5 @@
 # -*- coding: utf-8
 from datetime import timedelta
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -77,14 +76,14 @@ class DrawTest(TestCase):
         draw.save()
         self.assertEquals(self.word, self.user.current_word())
 
+    @override_settings(DRAW_TIME='1 00:00:00')
     def test_draw_word(self):
         draw = Draw.objects.create(user=self.user,
                             word=self.word,
                             accepted=None)
         self.assertEquals(self.word, self.user.draw_word())
         draw.accepted = True
-        duration = parse_duration(settings.DRAW_TIME)
-        draw.timestamp -= 2 * duration
+        draw.timestamp -= datetime.timespan(days=2)
         draw.save()
         Work.objects.create(draw=draw)
 
